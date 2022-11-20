@@ -4,7 +4,7 @@
 
 packagemap-java-parser provides a parser to build maps of your java code. 
 
-Check out the site at https://packagemap.co
+Check out the site at [https://packagemap.co](https://packagemap.co)
 
 Code review just got a lot easier! Visualise your code. 
 
@@ -37,9 +37,9 @@ java -jar packagemap-java-parser-1.0.0-SNAPSHOT-all.jar \
 | flag | description |
 | --- | --- |
 | -b, --base | The base package that all our source code shares. This helps the parser ignore classes imported from your dependencies |
-| -k, --key | Your access key and secret key. Maps will be added to your account on packagemap.co |
+| -k, --key | Your access key and secret key. Maps will be added to your account on [packagemap.co](https://packagemap.co) |
 | -g, --git | Builds a map of only the files that have changed vs. the target commit hash or head of the target branch.  |
-| [dirs] | A list of directories to parse the source files from. The directory should target just above the source code package hierarchy.<br/> e.g. for class src/main/java/co/packagemap/Main.java we should use the directory src/main/java. |
+| [dirs] | A list of directories to parse the source files from. The directory should target just above the source code package hierarchy.<br/> e.g. for class `src/main/java/co/packagemap/Main.java` we should use the directory `src/main/java`. |
 
 ## Using the PackageMap UI
 
