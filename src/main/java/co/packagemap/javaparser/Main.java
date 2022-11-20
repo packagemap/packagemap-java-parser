@@ -24,7 +24,7 @@ public class Main {
     var base =
         new Option("b", "base", true, "the base packages, all edges must be inside this base");
     var filterFlag = new Option("f", "filter", true, "only include packages with this prefix");
-    var excludeFlag = new Option("e", "exclue", true, "don't include packages with this prefix");
+    var excludeFlag = new Option("e", "exclude", true, "don't include packages with this prefix");
     var gitFlag =
         new Option("g", "git", true, "show only changed files from branch or commit hash");
     var remote =
