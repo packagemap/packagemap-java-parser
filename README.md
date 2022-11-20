@@ -34,8 +34,9 @@ java -jar packagemap-java-parser-1.0.0-SNAPSHOT-all.jar \
 
 ## Command line flags
 
-| -b, --base | The base package that all our source code shares. This helps the parser ignore classes imported from your dependencies |
+| flag | description |
 | --- | --- |
+| -b, --base | The base package that all our source code shares. This helps the parser ignore classes imported from your dependencies |
 | -k, --key | Your access key and secret key. Maps will be added to your account on packagemap.co |
 | -g, --git | Builds a map of only the files that have changed vs. the target commit hash or head of the target branch.  |
 | [dirs] | A list of directories to parse the source files from. The directory should target just above the source code package hierarchy.
