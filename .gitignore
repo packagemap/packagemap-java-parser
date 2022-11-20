@@ -1,0 +1,9 @@
+build/
+.gradle/*
+*.swp
+*.swo
+bin/*
+.settings/*
+.classpath
+.project
+gradle/
