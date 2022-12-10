@@ -1,0 +1,24 @@
+name: 'PackageMap java parser Github action'
+description: 'parse java code into a packagemap'
+inputs:
+  src_dir:
+    description: 'the source directory for parsing code, typically src/main/java'
+    default: 'src/main/java'
+  api_key:
+    description: 'api key for packagemap'
+    required: true
+  base:
+    description: 'base for all java code'
+    required: true
+outputs:
+  packagemap_url:
+    description: 'link to the packagemap ui'
+runs:
+  using: 'docker'
+  image: 'packagemap/packagemap-java-parser:0.0.2'
+  env:
+    - PACKAGEMAP_KEY=${{ inputs.api_key }}
+  args:
+    - --base ${{ inputs.base }}
+    - ${{ inputs.src_dir }}
+
