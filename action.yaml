@@ -18,10 +18,11 @@ outputs:
     description: 'link to the packagemap ui'
 runs:
   using: 'docker'
-  image: 'packagemap/packagemap-java-parser:0.0.2'
+  image: 'docker://packagemap/packagemap-java-parser:0.0.2'
   env:
-    - PACKAGEMAP_KEY=${{ inputs.api_key }}
+    PACKAGEMAP_KEY: ${{ inputs.api_key }}
   args:
-    - --base ${{ inputs.base }}
+    - --base 
+    - ${{ inputs.base }}
     - ${{ inputs.src_dir }}
 
