@@ -34,6 +34,18 @@ java -jar packagemap-java-parser-1.0.0-SNAPSHOT-all.jar \
 1. The parser will print out the URL of the map, navigate to that URL to analyse and filter. 
 2. Try out the `--git=` flag with a branch name `--git=origin/main` or a commit hash to map only the files that have changed.
 
+## Docker image
+
+Instead of running the jar directly, you can use the docker image `packagemap/packagemap-java-parser`:
+```bash
+docker run \
+  -v $(pwd):/project \
+  packagemap/packagemap-java-parser
+  --key <access-key>:<secret-key> \
+  --base com.mycompany \
+  /project/src/main/java
+```
+
 ## Command line flags
 
 | flag | description |
