@@ -1,5 +1,8 @@
 name: 'PackageMap java parser Github action'
 description: 'parse java code into a packagemap'
+branding:
+  icon: map
+  color: purple
 inputs:
   src_dir:
     description: 'the source directory for parsing code, typically src/main/java'
