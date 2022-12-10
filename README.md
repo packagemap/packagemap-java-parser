@@ -66,8 +66,7 @@ docker run \
 | flag | description |
 | --- | --- |
 | -b, --base | The base package that all our source code shares. This helps the parser ignore classes imported from your dependencies |
-| -k, --key | Your access key and secret key. Maps will be added to your account on [packagemap.co](https://packagemap.co). Alternatively you can pass the `PACKAGEMAP_KEY`
-environment variable. Both flag and env var use the colon separated format `user_id:secret_key` |
+| -k, --key | Your access key and secret key. Maps will be added to your account on [packagemap.co](https://packagemap.co). Alternatively you can pass the `PACKAGEMAP_KEY` environment variable. Both flag and env var use the colon separated format `user_id:secret_key` |
 | -g, --git | Builds a map of only the files that have changed vs. the target commit hash or head of the target branch.  |
 | [dirs] | A list of directories to parse the source files from. The directory should target just above the source code package hierarchy.<br/> e.g. for class `src/main/java/co/packagemap/Main.java` we should use the directory `src/main/java`. |
 
