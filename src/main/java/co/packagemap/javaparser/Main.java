@@ -30,7 +30,12 @@ public class Main {
     var remote =
         new Option("r", "remote-url", true, "URL of the remote server to use, default: " + ADDRESS);
     var debug = new Option("d", "debug", false, "print debug");
-    var key = new Option("k", "key", true, "api key in 'user_id:secret_key' format");
+    var key =
+        new Option(
+            "k",
+            "key",
+            true,
+            "api key in 'user_id:secret_key' format, or PACKAGEMAP_KEY environment variable");
 
     options.addOption(base);
     options.addOption(filterFlag);
@@ -51,9 +56,14 @@ public class Main {
       System.exit(1);
     }
 
-    if (!cmd.hasOption(key)) {
+    var envKey = System.getenv("PACKAGEMAP_KEY");
+
+    if (!cmd.hasOption(key) && envKey == null) {
       formatter.printHelp(
-          "parser [FLAGS] [DIRS must be root of packages]", "missing api key", options, null);
+          "parser [FLAGS] [DIRS must be root of packages]",
+          "missing --key, -k flag or PACKAGEMAP_KEY environment variable",
+          options,
+          null);
       System.exit(1);
     }
 
@@ -82,9 +92,14 @@ public class Main {
       return;
     }
 
+    var apiKey = envKey;
+    if (apiKey == null) {
+      apiKey = cmd.getOptionValue(key);
+    }
+
     try {
       var client = new PackageMapClient(address);
-      System.out.println(client.hostedPage(cmd.getOptionValue(key), edgeList));
+      System.out.println(client.hostedPage(apiKey, edgeList));
     } catch (ClientException e) {
       System.out.println("error: " + e.getMessage());
       System.exit(1);
