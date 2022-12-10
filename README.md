@@ -8,7 +8,22 @@ Check out the site at [https://packagemap.co](https://packagemap.co)
 
 Code review just got a lot easier! Visualise your code. 
 
-## Getting started
+## Getting started - github action
+
+Use the github action:
+```yaml
+- name: PackageMap java parser Github action
+  uses: packagemap/packagemap-java-parser@v0.0.2
+  with:
+    src_dir: 'src/main/java'
+    base: 'com.mycompany'
+    api_key:  ${{ secrets.PACKAGEMAP_KEY }}
+```
+
+1. Add the github action config
+2. Add a PACKAGEMAP_KEY secret to your repo in the format `user_id:secret_key`
+
+## Getting started - local
 
 1. Sign up at [packagemap.co](http://packagemap.co) to get an API Access key, and API Secret key.
 2. Download the jar from the release page and run it
