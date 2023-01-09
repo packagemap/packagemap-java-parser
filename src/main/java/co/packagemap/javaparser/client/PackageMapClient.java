@@ -39,19 +39,23 @@ public class PackageMapClient {
 
           requestNodes.add(
               new RequestNode(
-                  src.name(),
+                  src.name() + "_" + src.element(),
                   src.packageNode().label(),
                   src.unqualifiedName(),
+                  src.element(),
                   src.accessModifier()));
 
           if (edge.linked()) {
             var dst = edge.dst();
-            requestEdges.add(new RequestEdge(src.name(), dst.name()));
+            requestEdges.add(
+                new RequestEdge(
+                    src.name() + "_" + src.element(), dst.name() + "_" + dst.element()));
             requestNodes.add(
                 new RequestNode(
-                    dst.name(),
+                    dst.name() + "_" + dst.element(),
                     dst.packageNode().label(),
                     dst.unqualifiedName(),
+                    dst.element(),
                     dst.accessModifier()));
           }
         });
@@ -78,7 +82,8 @@ public class PackageMapClient {
   }
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-  private record RequestNode(String id, String pkg, String name, String accessModifier) {}
+  private record RequestNode(
+      String id, String pkg, String name, String element, String accessModifier) {}
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   private record RequestEdge(String srcNodeId, String dstNodeId) {}

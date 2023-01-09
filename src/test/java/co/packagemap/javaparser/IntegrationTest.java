@@ -64,16 +64,19 @@ public class IntegrationTest {
         "id" : "nestedenum_WrapperClass_NestedEnum",
         "pkg" : "nestedenum.WrapperClass",
         "name" : "NestedEnum",
+        "element": "",
         "access_modifier" : "public"
       }, {
         "id" : "nestedenum_WrapperClass",
         "pkg" : "nestedenum",
         "name" : "WrapperClass",
+        "element": "",
         "access_modifier" : "public"
       }, {
         "id" : "nestedenum_OtherClass",
         "pkg" : "nestedenum",
         "name" : "OtherClass",
+        "element": "",
         "access_modifier" : "public"
       } ],
       "edges" : [ {

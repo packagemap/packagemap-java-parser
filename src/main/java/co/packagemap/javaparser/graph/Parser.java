@@ -66,7 +66,10 @@ public class Parser {
       allNodes.stream()
           .filter(n -> edge.dst().qualifiedBy(n))
           .findFirst()
-          .ifPresent(replacement -> edgeList.set(index, new Edge(edge.src(), replacement)));
+          .ifPresent(
+              replacement -> {
+                edgeList.set(index, new Edge(edge.src(), replacement));
+              });
     }
 
     var filteredEdges =
@@ -78,12 +81,25 @@ public class Parser {
                 edge -> {
                   if (!edge.linked()) {
                     return new Edge(
-                        new Node(edge.src().label(), edge.src().accessModifier(), Set.of()), null);
+                        new Node(
+                            edge.src().label(),
+                            edge.src().element(),
+                            edge.src().accessModifier(),
+                            Set.of()),
+                        null);
                   }
 
                   return new Edge(
-                      new Node(edge.src().label(), edge.src().accessModifier(), Set.of()),
-                      new Node(edge.dst().label(), edge.dst().accessModifier(), Set.of()));
+                      new Node(
+                          edge.src().label(),
+                          edge.src().element(),
+                          edge.src().accessModifier(),
+                          Set.of()),
+                      new Node(
+                          edge.dst().label(),
+                          edge.dst().element(),
+                          edge.dst().accessModifier(),
+                          Set.of()));
                 })
             .distinct()
             .toList();

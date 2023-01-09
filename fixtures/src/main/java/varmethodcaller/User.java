@@ -9,4 +9,8 @@ public class User {
   public String myMethod() {
     return "foo";
   }
+
+  public String myReference() {
+    return "foo";
+  }
 }
