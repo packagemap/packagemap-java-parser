@@ -1,10 +1,10 @@
 package co.packagemap.javaparser.graph;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodReference;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -23,10 +24,12 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 class ASTTypeVisitor extends ASTVisitor {
 
+  private final Deque<String> methodStack = new ArrayDeque<>();
+
   private String pkg;
   private Type clazz;
 
-  Map<String, String> types = new HashMap<>();
+  Map<ElementType, String> types = new HashMap<>();
   Set<String> imports = new HashSet<>();
 
   private record Type(String name, String modifier) {
@@ -36,11 +39,16 @@ class ASTTypeVisitor extends ASTVisitor {
   }
   ;
 
-  public Node srcNode() {
+  public Node srcNode(String element) {
     if (clazz == null) {
-      return new Node(pkg + "." + "unknown_class_name", "public", Set.of());
+      return new Node(pkg + "." + "unknown_class_name", "", "public", Set.of());
     }
-    return new Node(pkg + "." + clazz.name, clazz.modifier, Set.of());
+
+    if (element != null && !element.isEmpty()) {
+      return new Node(pkg + "." + clazz.name, element, clazz.modifier, Set.of());
+    }
+
+    return new Node(pkg + "." + clazz.name, "", clazz.modifier, Set.of());
   }
 
   public boolean visit(PackageDeclaration node) {
@@ -59,7 +67,7 @@ class ASTTypeVisitor extends ASTVisitor {
     }
 
     var name = pkg + "." + clazz.name + "." + node.getName().getIdentifier();
-    types.put(name, accessModifier(node.getModifiers()));
+    types.put(new ElementType("", name, ""), accessModifier(node.getModifiers()));
     return true;
   }
 
@@ -71,7 +79,7 @@ class ASTTypeVisitor extends ASTVisitor {
     }
 
     var name = pkg + "." + clazz.name + "." + node.getName().getIdentifier();
-    types.put(name, accessModifier(node.getModifiers()));
+    types.put(new ElementType("", name, ""), accessModifier(node.getModifiers()));
     return true;
   }
 
@@ -83,7 +91,7 @@ class ASTTypeVisitor extends ASTVisitor {
     }
 
     var name = pkg + "." + clazz.name + "." + node.getName().getIdentifier();
-    types.put(name, accessModifier(node.getModifiers()));
+    types.put(new ElementType("", name, ""), accessModifier(node.getModifiers()));
     return true;
   }
 
@@ -97,32 +105,47 @@ class ASTTypeVisitor extends ASTVisitor {
         .typeString()
         .forEach(
             t -> {
-              types.putIfAbsent(t, null);
+              types.putIfAbsent(new ElementType("", t, ""), null);
             });
     return true;
   }
 
+  public boolean visit(MethodDeclaration node) {
+    methodStack.push(node.getName().getIdentifier());
+    return true;
+  }
+
+  public void endVisit(MethodDeclaration node) {
+    methodStack.pop();
+  }
+
   public boolean visit(MethodInvocation node) {
-    methodTypes(node.resolveMethodBinding()).forEach(t -> types.put(t.name, t.modifier));
+    methodTypes(node.resolveMethodBinding())
+        .entrySet()
+        .forEach(entry -> types.put(entry.getKey(), entry.getValue()));
     return true;
   }
 
   public boolean visit(MethodReference node) {
-    methodTypes(node.resolveMethodBinding()).forEach(t -> types.put(t.name, t.modifier));
+    methodTypes(node.resolveMethodBinding())
+        .entrySet()
+        .forEach(entry -> types.put(entry.getKey(), entry.getValue()));
     return true;
   }
 
-  private List<Type> methodTypes(IMethodBinding binding) {
+  private Map<ElementType, String> methodTypes(IMethodBinding binding) {
     if (binding == null) {
-      return List.of();
+      return Map.of();
     }
 
-    var out = new ArrayList<Type>();
+    var out = new HashMap<ElementType, String>();
     var declaringClass = binding.getDeclaringClass();
 
-    var referencedClass =
-        new Type(declaringClass.getQualifiedName(), accessModifier(declaringClass.getModifiers()));
-    out.add(referencedClass);
+    var caller = methodStack.peek();
+
+    var referencedMethod =
+        new ElementType(caller, declaringClass.getQualifiedName(), binding.getName());
+    out.put(referencedMethod, accessModifier(declaringClass.getModifiers()));
 
     var methodDeclaration = binding.getMethodDeclaration();
 
@@ -135,10 +158,10 @@ class ASTTypeVisitor extends ASTVisitor {
       return out;
     }
 
-    var returnType = methodDeclaration.getReturnType().getQualifiedName();
+    var returnType = new ElementType("", methodDeclaration.getReturnType().getQualifiedName(), "");
     var returnTypeAccess = accessModifier(methodDeclaration.getReturnType().getModifiers());
 
-    out.add(new Type(returnType, returnTypeAccess));
+    out.put(returnType, returnTypeAccess);
     return out;
   }
 
@@ -148,37 +171,39 @@ class ASTTypeVisitor extends ASTVisitor {
       return true;
     }
 
-    types.putIfAbsent(node.getName().getFullyQualifiedName(), null);
+    types.putIfAbsent(new ElementType("", node.getName().getFullyQualifiedName(), ""), null);
     return true;
   }
 
   public Set<Edge> edges() {
-    var src = srcNode();
-
     var links =
         types.entrySet().stream()
             .map(
                 entry -> {
-                  var typeName = entry.getKey();
+                  var elementType = entry.getKey();
+                  var src = srcNode(elementType.caller);
                   var typeAccess = Optional.ofNullable(entry.getValue()).orElse("public");
-                  final var t = typeName;
+                  final var t = elementType.name;
 
                   var qualifiedImport =
                       imports.stream().filter(importName -> importName.endsWith("." + t)).findAny();
 
                   if (qualifiedImport.isPresent()) {
-                    return new Edge(src, new Node(qualifiedImport.get(), typeAccess, Set.of()));
+                    return new Edge(
+                        src,
+                        new Node(qualifiedImport.get(), elementType.element, typeAccess, Set.of()));
                   }
 
                   var pkgImports = new HashSet<>(imports);
                   pkgImports.add(pkg);
                   pkgImports.add(src.label());
 
-                  if (typeName.contains(".") && Character.isUpperCase(typeName.charAt(0))) {
+                  if (elementType.name.contains(".")
+                      && Character.isUpperCase(elementType.name.charAt(0))) {
                     // Type name is prefixed with a class
                     // but not a package. i.e. WrapperClass.NestedEnum
-                    var parts = typeName.split("\\.");
-                    typeName = parts[parts.length - 1];
+                    var parts = elementType.name.split("\\.");
+                    elementType.name = parts[parts.length - 1];
 
                     var pfx = String.join(".", Arrays.copyOfRange(parts, 0, parts.length - 1));
 
@@ -188,12 +213,13 @@ class ASTTypeVisitor extends ASTVisitor {
                     }
                   }
 
-                  return new Edge(src, new Node(typeName, typeAccess, pkgImports));
+                  return new Edge(
+                      src, new Node(elementType.name, elementType.element, typeAccess, pkgImports));
                 })
             .collect(Collectors.toSet());
 
     var out = new HashSet<>(links);
-    out.add(new Edge(src, null));
+    out.add(new Edge(srcNode(""), null));
     return out;
   }
 

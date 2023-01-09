@@ -67,9 +67,9 @@ public class PackageMapClientTest {
                     """
             {
               "nodes": [
-                {"id": "foo_bar_Root", "pkg": "foo.bar", "name": "Root", "access_modifier": "public"},
-                {"id": "foo_bar_nested_Nest1", "pkg": "foo.bar.nested", "name": "Nest1", "access_modifier": "public"},
-                {"id": "foo_bar_nested_Nest2", "pkg": "foo.bar.nested", "name": "Nest2", "access_modifier": "public"}
+                {"id": "foo_bar_Root", "pkg": "foo.bar", "name": "Root", "element": "", "access_modifier": "public"},
+                {"id": "foo_bar_nested_Nest1", "pkg": "foo.bar.nested", "name": "Nest1", "element": "", "access_modifier": "public"},
+                {"id": "foo_bar_nested_Nest2", "pkg": "foo.bar.nested", "name": "Nest2", "element": "", "access_modifier": "public"}
               ],
               "edges": [
                 {"src_node_id": "foo_bar_Root", "dst_node_id": "foo_bar_nested_Nest1"},

@@ -49,9 +49,20 @@ public record Edge(Node src, Node dst) {
 
   public String prettyPrint() {
     var sb = new StringBuilder();
-    sb.append(String.format("[%s] ->", src.label()));
+    sb.append("[");
+    sb.append(src.label());
+    if (!src.element().isEmpty()) {
+      sb.append(" ").append(src.element());
+    }
+    sb.append("] ->");
+
     if (linked()) {
-      sb.append(String.format(" [%s]", dst.label()));
+      sb.append(" [");
+      sb.append(dst.label());
+      if (!dst.element().isEmpty()) {
+        sb.append(" ").append(dst.element());
+      }
+      sb.append("]");
     }
 
     return sb.toString();
