@@ -49,9 +49,9 @@ public class PackageMapClientTest {
             {"url": "localhost:8080/map/uuid-abc"}
             """)));
 
-    var rootNode = new Node("foo.bar.Root", "public", Set.of());
-    var nest1 = new Node("foo.bar.nested.Nest1", "public", Set.of());
-    var nest2 = new Node("foo.bar.nested.Nest2", "public", Set.of());
+    var rootNode = new Node("foo.bar.Root", "", "public", Set.of());
+    var nest1 = new Node("foo.bar.nested.Nest1", "", "public", Set.of());
+    var nest2 = new Node("foo.bar.nested.Nest2", "", "public", Set.of());
 
     var edges = List.of(new Edge(rootNode, nest1), new Edge(nest1, nest2));
 
@@ -67,13 +67,13 @@ public class PackageMapClientTest {
                     """
             {
               "nodes": [
-                {"id": "foo_bar_Root", "pkg": "foo.bar", "name": "Root", "element": "", "access_modifier": "public"},
-                {"id": "foo_bar_nested_Nest1", "pkg": "foo.bar.nested", "name": "Nest1", "element": "", "access_modifier": "public"},
-                {"id": "foo_bar_nested_Nest2", "pkg": "foo.bar.nested", "name": "Nest2", "element": "", "access_modifier": "public"}
+                {"id": "foo_bar_Root_", "pkg": "foo.bar", "name": "Root", "element": "", "access_modifier": "public"},
+                {"id": "foo_bar_nested_Nest1_", "pkg": "foo.bar.nested", "name": "Nest1", "element": "", "access_modifier": "public"},
+                {"id": "foo_bar_nested_Nest2_", "pkg": "foo.bar.nested", "name": "Nest2", "element": "", "access_modifier": "public"}
               ],
               "edges": [
-                {"src_node_id": "foo_bar_Root", "dst_node_id": "foo_bar_nested_Nest1"},
-                {"src_node_id": "foo_bar_nested_Nest1", "dst_node_id": "foo_bar_nested_Nest2"}
+                {"src_node_id": "foo_bar_Root_", "dst_node_id": "foo_bar_nested_Nest1_"},
+                {"src_node_id": "foo_bar_nested_Nest1_", "dst_node_id": "foo_bar_nested_Nest2_"}
               ]
             }
             """,

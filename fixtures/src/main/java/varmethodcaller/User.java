@@ -2,13 +2,16 @@ package varmethodcaller;
 
 public class User {
 
-  public static Used myStaticMethod() {
+  protected static Used myStaticMethod() {
     return new Used();
   }
 
-  public String myMethod() {
+  String myMethod() {
+    internalMethodCall();
     return "foo";
   }
+
+  private void internalMethodCall() {}
 
   public String myReference() {
     return "foo";

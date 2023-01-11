@@ -24,31 +24,23 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 class ASTTypeVisitor extends ASTVisitor {
 
-  private final Deque<String> methodStack = new ArrayDeque<>();
-
   private String pkg;
   private Type clazz;
 
   Map<ElementType, String> types = new HashMap<>();
   Set<String> imports = new HashSet<>();
+  private final Deque<Type> methodStack = new ArrayDeque<>();
 
-  private record Type(String name, String modifier) {
-    private Type(String name) {
-      this(name, "public");
+  public Node srcNode(Type element) {
+    if (element != null && !element.name().isEmpty()) {
+      return new Node(pkg + "." + clazz.name(), element.name(), element.modifier(), Set.of());
     }
-  }
-  ;
 
-  public Node srcNode(String element) {
     if (clazz == null) {
       return new Node(pkg + "." + "unknown_class_name", "", "public", Set.of());
     }
 
-    if (element != null && !element.isEmpty()) {
-      return new Node(pkg + "." + clazz.name, element, clazz.modifier, Set.of());
-    }
-
-    return new Node(pkg + "." + clazz.name, "", clazz.modifier, Set.of());
+    return new Node(pkg + "." + clazz.name(), "", clazz.modifier(), Set.of());
   }
 
   public boolean visit(PackageDeclaration node) {
@@ -66,8 +58,8 @@ class ASTTypeVisitor extends ASTVisitor {
       return true;
     }
 
-    var name = pkg + "." + clazz.name + "." + node.getName().getIdentifier();
-    types.put(new ElementType("", name, ""), accessModifier(node.getModifiers()));
+    var name = pkg + "." + clazz.name() + "." + node.getName().getIdentifier();
+    types.put(new ElementType(new Type(""), name, ""), accessModifier(node.getModifiers()));
     return true;
   }
 
@@ -78,8 +70,8 @@ class ASTTypeVisitor extends ASTVisitor {
       return true;
     }
 
-    var name = pkg + "." + clazz.name + "." + node.getName().getIdentifier();
-    types.put(new ElementType("", name, ""), accessModifier(node.getModifiers()));
+    var name = pkg + "." + clazz.name() + "." + node.getName().getIdentifier();
+    types.put(new ElementType(new Type(""), name, ""), accessModifier(node.getModifiers()));
     return true;
   }
 
@@ -90,8 +82,8 @@ class ASTTypeVisitor extends ASTVisitor {
       return true;
     }
 
-    var name = pkg + "." + clazz.name + "." + node.getName().getIdentifier();
-    types.put(new ElementType("", name, ""), accessModifier(node.getModifiers()));
+    var name = pkg + "." + clazz.name() + "." + node.getName().getIdentifier();
+    types.put(new ElementType(new Type(""), name, ""), accessModifier(node.getModifiers()));
     return true;
   }
 
@@ -105,13 +97,14 @@ class ASTTypeVisitor extends ASTVisitor {
         .typeString()
         .forEach(
             t -> {
-              types.putIfAbsent(new ElementType("", t, ""), null);
+              types.putIfAbsent(new ElementType(new Type(""), t, ""), null);
             });
     return true;
   }
 
   public boolean visit(MethodDeclaration node) {
-    methodStack.push(node.getName().getIdentifier());
+    var mod = accessModifier(node.getModifiers());
+    methodStack.push(new Type(node.getName().getIdentifier(), mod));
     return true;
   }
 
@@ -145,7 +138,7 @@ class ASTTypeVisitor extends ASTVisitor {
 
     var referencedMethod =
         new ElementType(caller, declaringClass.getQualifiedName(), binding.getName());
-    out.put(referencedMethod, accessModifier(declaringClass.getModifiers()));
+    out.put(referencedMethod, accessModifier(binding.getModifiers()));
 
     var methodDeclaration = binding.getMethodDeclaration();
 
@@ -158,7 +151,8 @@ class ASTTypeVisitor extends ASTVisitor {
       return out;
     }
 
-    var returnType = new ElementType("", methodDeclaration.getReturnType().getQualifiedName(), "");
+    var returnType =
+        new ElementType(new Type(""), methodDeclaration.getReturnType().getQualifiedName(), "");
     var returnTypeAccess = accessModifier(methodDeclaration.getReturnType().getModifiers());
 
     out.put(returnType, returnTypeAccess);
@@ -171,7 +165,8 @@ class ASTTypeVisitor extends ASTVisitor {
       return true;
     }
 
-    types.putIfAbsent(new ElementType("", node.getName().getFullyQualifiedName(), ""), null);
+    types.putIfAbsent(
+        new ElementType(new Type(""), node.getName().getFullyQualifiedName(), ""), null);
     return true;
   }
 
@@ -219,7 +214,7 @@ class ASTTypeVisitor extends ASTVisitor {
             .collect(Collectors.toSet());
 
     var out = new HashSet<>(links);
-    out.add(new Edge(srcNode(""), null));
+    out.add(new Edge(srcNode(null), null));
     return out;
   }
 

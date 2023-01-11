@@ -61,30 +61,111 @@ public class IntegrationTest {
                     """
      {
       "nodes" : [ {
-        "id" : "nestedenum_WrapperClass_NestedEnum",
+        "id" : "nestedenum_WrapperClass_NestedEnum_",
         "pkg" : "nestedenum.WrapperClass",
         "name" : "NestedEnum",
         "element": "",
         "access_modifier" : "public"
       }, {
-        "id" : "nestedenum_WrapperClass",
+        "id" : "nestedenum_WrapperClass_",
         "pkg" : "nestedenum",
         "name" : "WrapperClass",
         "element": "",
         "access_modifier" : "public"
       }, {
-        "id" : "nestedenum_OtherClass",
+        "id" : "nestedenum_OtherClass_",
         "pkg" : "nestedenum",
         "name" : "OtherClass",
         "element": "",
         "access_modifier" : "public"
       } ],
       "edges" : [ {
-        "src_node_id" : "nestedenum_WrapperClass",
-        "dst_node_id" : "nestedenum_WrapperClass_NestedEnum"
+        "src_node_id" : "nestedenum_WrapperClass_",
+        "dst_node_id" : "nestedenum_WrapperClass_NestedEnum_"
       }, {
-        "src_node_id" : "nestedenum_OtherClass",
-        "dst_node_id" : "nestedenum_WrapperClass_NestedEnum"
+        "src_node_id" : "nestedenum_OtherClass_",
+        "dst_node_id" : "nestedenum_WrapperClass_NestedEnum_"
+      } ]
+    }
+            """,
+                    IGNORE_ARRAY_ORDER,
+                    IGNORE_EXTRA_ELEMENTS)));
+  }
+
+  @Test
+  public void shouldIncludeMethodsAndAccess() throws Exception {
+    var edges =
+        Parser.findEdges(List.of("./fixtures/src/main/java/"), "varmethodcaller", null, null);
+
+    client.hostedPage("bar:foo", edges);
+    verify(
+        postRequestedFor(urlEqualTo("/api/map"))
+            .withBasicAuth(new BasicCredentials("bar", "foo"))
+            .withRequestBody(
+                equalToJson(
+                    """
+    {
+      "nodes" : [ {
+        "id" : "varmethodcaller_User_myStaticMethod",
+        "pkg" : "varmethodcaller",
+        "name" : "User",
+        "element" : "myStaticMethod",
+        "access_modifier" : "protected"
+      }, {
+        "id" : "varmethodcaller_User_internalMethodCall",
+        "pkg" : "varmethodcaller",
+        "name" : "User",
+        "element" : "internalMethodCall",
+        "access_modifier" : "private"
+      }, {
+        "id" : "varmethodcaller_User_myMethod",
+        "pkg" : "varmethodcaller",
+        "name" : "User",
+        "element" : "myMethod",
+        "access_modifier" : "package_private"
+      }, {
+        "id" : "varmethodcaller_Caller_callingMethod",
+        "pkg" : "varmethodcaller",
+        "name" : "Caller",
+        "element" : "callingMethod",
+        "access_modifier" : "public"
+      }, {
+        "id" : "varmethodcaller_Used_",
+        "pkg" : "varmethodcaller",
+        "name" : "Used",
+        "element" : "",
+        "access_modifier" : "public"
+      }, {
+        "id" : "varmethodcaller_User_",
+        "pkg" : "varmethodcaller",
+        "name" : "User",
+        "element" : "",
+        "access_modifier" : "public"
+      }, {
+        "id" : "varmethodcaller_Caller_",
+        "pkg" : "varmethodcaller",
+        "name" : "Caller",
+        "element" : "",
+        "access_modifier" : "public"
+      } ],
+      "edges" : [ {
+        "src_node_id" : "varmethodcaller_User_myMethod",
+        "dst_node_id" : "varmethodcaller_User_internalMethodCall"
+      }, {
+        "src_node_id" : "varmethodcaller_User_",
+        "dst_node_id" : "varmethodcaller_Used_"
+      }, {
+        "src_node_id" : "varmethodcaller_Caller_callingMethod",
+        "dst_node_id" : "varmethodcaller_User_myMethod"
+      }, {
+        "src_node_id" : "varmethodcaller_Caller_callingMethod",
+        "dst_node_id" : "varmethodcaller_User_myStaticMethod"
+      }, {
+        "src_node_id" : "varmethodcaller_Caller_",
+        "dst_node_id" : "varmethodcaller_Used_"
+      }, {
+        "src_node_id" : "varmethodcaller_Caller_",
+        "dst_node_id" : "varmethodcaller_User_"
       } ]
     }
             """,
