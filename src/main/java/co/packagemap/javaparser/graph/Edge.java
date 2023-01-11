@@ -53,6 +53,7 @@ public record Edge(Node src, Node dst) {
     sb.append(src.label());
     if (!src.element().isEmpty()) {
       sb.append(" ").append(src.element());
+      sb.append(" ").append(src.accessModifier());
     }
     sb.append("] ->");
 
@@ -61,6 +62,7 @@ public record Edge(Node src, Node dst) {
       sb.append(dst.label());
       if (!dst.element().isEmpty()) {
         sb.append(" ").append(dst.element());
+        sb.append(" ").append(dst.accessModifier());
       }
       sb.append("]");
     }

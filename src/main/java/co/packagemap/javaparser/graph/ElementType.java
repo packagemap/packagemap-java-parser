@@ -1,11 +1,11 @@
 package co.packagemap.javaparser.graph;
 
 class ElementType {
-  String caller;
+  Type caller;
   String name;
   String element;
 
-  ElementType(String caller, String name, String element) {
+  ElementType(Type caller, String name, String element) {
     this.caller = caller;
     this.name = name;
     this.element = element;
