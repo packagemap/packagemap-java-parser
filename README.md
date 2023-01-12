@@ -13,7 +13,7 @@ Code review just got a lot easier! Visualise your code.
 Use the github action:
 ```yaml
 - name: PackageMap java parser Github action
-  uses: packagemap/packagemap-java-parser@v0.0.2
+  uses: packagemap/packagemap-java-parser@v0.0.3
   with:
     src_dir: 'src/main/java'
     base: 'com.mycompany'
@@ -29,7 +29,7 @@ Use the github action:
 2. Download the jar from the release page and run it
 
 ```bash
-java -jar packagemap-java-parser-1.0.0-SNAPSHOT-all.jar \
+java -jar packagemap-java-parser-0.0.3-all.jar \
     --key <access-key>:<secret-key> \
     --base com.mycompany \
     [list of java source directories separated by spaces]
@@ -40,7 +40,7 @@ You can also pass the api key using `--key` flag or using the `PACKAGEMAP_KEY` e
 For example:
 
 ```bash
-java -jar packagemap-java-parser-1.0.0-SNAPSHOT-all.jar \
+java -jar packagemap-java-parser-0.0.3-all.jar \
     --key ABCDEFGHIJKLMNOP:183b9d197ed48a67c6e479a51 \
     --base com.mycompany \
     ./src/main/java
