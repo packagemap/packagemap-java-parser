@@ -11,16 +11,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.MethodReference;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeMethodReference;
 
 class ASTTypeVisitor extends ASTVisitor {
 
@@ -119,7 +120,16 @@ class ASTTypeVisitor extends ASTVisitor {
     return true;
   }
 
-  public boolean visit(MethodReference node) {
+  @Override
+  public boolean visit(ExpressionMethodReference node) {
+    methodTypes(node.resolveMethodBinding())
+        .entrySet()
+        .forEach(entry -> types.put(entry.getKey(), entry.getValue()));
+    return true;
+  }
+
+  @Override
+  public boolean visit(TypeMethodReference node) {
     methodTypes(node.resolveMethodBinding())
         .entrySet()
         .forEach(entry -> types.put(entry.getKey(), entry.getValue()));

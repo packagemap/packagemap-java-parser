@@ -106,17 +106,11 @@ public class IntegrationTest {
                     """
     {
       "nodes" : [ {
-        "id" : "varmethodcaller_User_myStaticMethod",
+        "id" : "varmethodcaller_Caller_callingMethod",
         "pkg" : "varmethodcaller",
-        "name" : "User",
-        "element" : "myStaticMethod",
-        "access_modifier" : "protected"
-      }, {
-        "id" : "varmethodcaller_User_internalMethodCall",
-        "pkg" : "varmethodcaller",
-        "name" : "User",
-        "element" : "internalMethodCall",
-        "access_modifier" : "private"
+        "name" : "Caller",
+        "element" : "callingMethod",
+        "access_modifier" : "public"
       }, {
         "id" : "varmethodcaller_User_myMethod",
         "pkg" : "varmethodcaller",
@@ -124,15 +118,27 @@ public class IntegrationTest {
         "element" : "myMethod",
         "access_modifier" : "package_private"
       }, {
-        "id" : "varmethodcaller_Caller_callingMethod",
+        "id" : "varmethodcaller_User_internalMethodCall",
         "pkg" : "varmethodcaller",
-        "name" : "Caller",
-        "element" : "callingMethod",
-        "access_modifier" : "public"
+        "name" : "User",
+        "element" : "internalMethodCall",
+        "access_modifier" : "private"
       }, {
         "id" : "varmethodcaller_Used_",
         "pkg" : "varmethodcaller",
         "name" : "Used",
+        "element" : "",
+        "access_modifier" : "public"
+      }, {
+        "id" : "varmethodcaller_User_myStaticMethod",
+        "pkg" : "varmethodcaller",
+        "name" : "User",
+        "element" : "myStaticMethod",
+        "access_modifier" : "protected"
+      }, {
+        "id" : "varmethodcaller_Caller_",
+        "pkg" : "varmethodcaller",
+        "name" : "Caller",
         "element" : "",
         "access_modifier" : "public"
       }, {
@@ -142,33 +148,35 @@ public class IntegrationTest {
         "element" : "",
         "access_modifier" : "public"
       }, {
-        "id" : "varmethodcaller_Caller_",
+        "id" : "varmethodcaller_User_myReference",
         "pkg" : "varmethodcaller",
-        "name" : "Caller",
-        "element" : "",
+        "name" : "User",
+        "element" : "myReference",
         "access_modifier" : "public"
       } ],
       "edges" : [ {
-        "src_node_id" : "varmethodcaller_User_myMethod",
-        "dst_node_id" : "varmethodcaller_User_internalMethodCall"
-      }, {
-        "src_node_id" : "varmethodcaller_User_",
+        "src_node_id" : "varmethodcaller_Caller_",
         "dst_node_id" : "varmethodcaller_Used_"
       }, {
         "src_node_id" : "varmethodcaller_Caller_callingMethod",
-        "dst_node_id" : "varmethodcaller_User_myMethod"
+        "dst_node_id" : "varmethodcaller_User_myReference"
       }, {
         "src_node_id" : "varmethodcaller_Caller_callingMethod",
         "dst_node_id" : "varmethodcaller_User_myStaticMethod"
       }, {
-        "src_node_id" : "varmethodcaller_Caller_",
+        "src_node_id" : "varmethodcaller_User_",
         "dst_node_id" : "varmethodcaller_Used_"
+      }, {
+        "src_node_id" : "varmethodcaller_User_myMethod",
+        "dst_node_id" : "varmethodcaller_User_internalMethodCall"
+      }, {
+        "src_node_id" : "varmethodcaller_Caller_callingMethod",
+        "dst_node_id" : "varmethodcaller_User_myMethod"
       }, {
         "src_node_id" : "varmethodcaller_Caller_",
         "dst_node_id" : "varmethodcaller_User_"
       } ]
-    }
-            """,
+    }""",
                     IGNORE_ARRAY_ORDER,
                     IGNORE_EXTRA_ELEMENTS)));
   }
