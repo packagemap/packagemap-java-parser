@@ -99,7 +99,8 @@ public class Main {
 
     try {
       var client = new PackageMapClient(address);
-      System.out.println(client.hostedPage(apiKey, edgeList));
+      var url = client.hostedPage(apiKey, edgeList);
+      System.out.println(url);
     } catch (ClientException e) {
       System.out.println("error: " + e.getMessage());
       System.exit(1);

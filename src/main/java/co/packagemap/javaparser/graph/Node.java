@@ -1,5 +1,8 @@
 package co.packagemap.javaparser.graph;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class Node {
@@ -28,10 +31,6 @@ public class Node {
 
   public String accessModifier() {
     return accessModifier;
-  }
-
-  public Set<String> possibleImports() {
-    return possibleImports;
   }
 
   public String name() {
@@ -84,25 +83,17 @@ public class Node {
     return pkgNode;
   }
 
-  public boolean qualifiedBy(Node node) {
+  public Optional<Node> findQualifyingNode(Map<String, List<Node>> allNodesMap) {
     if (!unqualified()) {
-      return false;
+      return Optional.empty();
     }
 
-    var importMatch = possibleImports.contains(node.packageNode().label());
-
-    if (!importMatch) {
-      return false;
-    }
-
-    var nameMatch = unqualifiedName().equals(node.unqualifiedName());
-    if (!nameMatch) {
-      return false;
-    }
-
-    var elementMatch = element().equals(node.element());
-
-    return elementMatch;
+    return possibleImports.stream()
+        .filter(imp -> allNodesMap.containsKey(imp))
+        .flatMap(imp -> allNodesMap.get(imp).stream())
+        .filter(node -> unqualifiedName().equals(node.unqualifiedName()))
+        .filter(node -> element().equals(node.element()))
+        .findFirst();
   }
 
   public boolean hasPrefix(String pkg) {
@@ -111,6 +102,13 @@ public class Node {
     }
 
     return label.startsWith(pkg);
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "Node{label=%s, accessModifier=%s, element=%s, imports=%s}",
+        label, accessModifier, element, possibleImports);
   }
 
   @Override

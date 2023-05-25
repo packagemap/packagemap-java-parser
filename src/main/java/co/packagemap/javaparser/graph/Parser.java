@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import me.tongfei.progressbar.ProgressBar;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class Parser {
@@ -19,92 +20,99 @@ public class Parser {
   public static List<Edge> findEdges(
       List<String> dirs, String base, List<String> filterPackages, List<String> excludePackages)
       throws IOException {
-
     List<SourceAST> files =
         dirs.stream().flatMap(arg -> SourceFiles.sourceFiles(arg).stream()).toList();
 
-    var factory = new ParserFactory(dirs);
-
     Map<Edge, Boolean> allEdges = new ConcurrentHashMap<>();
-    files.parallelStream()
-        .flatMap(
-            sourceFile -> {
-              CompilationUnit ast;
-              try {
-                ast = sourceFile.toAST(factory);
-              } catch (IOException e) {
-                e.printStackTrace();
-                return Stream.empty();
-              }
+    try (ProgressBar pbFiles = new ProgressBar("Parsing files", files.size()); ) {
 
-              var visitor = new ASTTypeVisitor();
+      var factory = new ParserFactory(dirs);
 
-              ast.accept(visitor);
-              return visitor.edges().stream();
-            })
-        .forEach(edge -> allEdges.put(edge, true));
+      files.parallelStream()
+          .flatMap(
+              sourceFile -> {
+                CompilationUnit ast;
+                try {
+                  ast = sourceFile.toAST(factory);
+                } catch (IOException e) {
+                  e.printStackTrace();
+                  return Stream.empty();
+                }
+
+                var visitor = new ASTTypeVisitor();
+
+                ast.accept(visitor);
+                pbFiles.step();
+                return visitor.edges().stream();
+              })
+          .forEach(edge -> allEdges.put(edge, true));
+
+      pbFiles.stepTo(files.size());
+    }
 
     var edgeList = new ArrayList<>(allEdges.keySet());
     Set<Node> allNodes =
         edgeList.stream().flatMap(edge -> edge.nodes().stream()).collect(Collectors.toSet());
 
-    for (int i = 0; i < edgeList.size(); i++) {
-      var edge = edgeList.get(i);
+    Map<String, List<Node>> allNodesMap =
+        allNodes.stream().collect(Collectors.groupingByConcurrent(n -> n.packageNode().label()));
 
-      if (!edge.linked()) {
-        continue;
+    try (ProgressBar pbImports = new ProgressBar("Organising imports", edgeList.size()); ) {
+
+      for (int i = 0; i < edgeList.size(); i++) {
+        pbImports.step();
+        var edge = edgeList.get(i);
+
+        if (!edge.linked()) {
+          continue;
+        }
+
+        var dstQualified = !edge.dst().unqualified();
+
+        if (dstQualified) {
+          continue;
+        }
+
+        final var index = i;
+
+        edge.dst()
+            .findQualifyingNode(allNodesMap)
+            .ifPresent(replacement -> edgeList.set(index, new Edge(edge.src(), replacement)));
       }
 
-      var dstQualified = !edge.dst().unqualified();
+      var filteredEdges =
+          edgeList.stream()
+              .filter(e -> e.base(base))
+              .filter(filterPredicate(filterPackages))
+              .filter(excludePredicate(excludePackages))
+              .map(
+                  edge -> {
+                    if (!edge.linked()) {
+                      return new Edge(
+                          new Node(
+                              edge.src().label(),
+                              edge.src().element(),
+                              edge.src().accessModifier(),
+                              Set.of()),
+                          null);
+                    }
 
-      if (dstQualified) {
-        continue;
-      }
-
-      final var index = i;
-
-      allNodes.stream()
-          .filter(n -> edge.dst().qualifiedBy(n))
-          .findFirst()
-          .ifPresent(
-              replacement -> {
-                edgeList.set(index, new Edge(edge.src(), replacement));
-              });
-    }
-
-    var filteredEdges =
-        edgeList.stream()
-            .filter(e -> e.base(base))
-            .filter(filterPredicate(filterPackages))
-            .filter(excludePredicate(excludePackages))
-            .map(
-                edge -> {
-                  if (!edge.linked()) {
                     return new Edge(
                         new Node(
                             edge.src().label(),
                             edge.src().element(),
                             edge.src().accessModifier(),
                             Set.of()),
-                        null);
-                  }
-
-                  return new Edge(
-                      new Node(
-                          edge.src().label(),
-                          edge.src().element(),
-                          edge.src().accessModifier(),
-                          Set.of()),
-                      new Node(
-                          edge.dst().label(),
-                          edge.dst().element(),
-                          edge.dst().accessModifier(),
-                          Set.of()));
-                })
-            .distinct()
-            .toList();
-
-    return filteredEdges;
+                        new Node(
+                            edge.dst().label(),
+                            edge.dst().element(),
+                            edge.dst().accessModifier(),
+                            Set.of()));
+                  })
+              .distinct()
+              .toList();
+      return filteredEdges;
+    }
   }
 
   private static Predicate<Edge> filterPredicate(List<String> filterBy) {
